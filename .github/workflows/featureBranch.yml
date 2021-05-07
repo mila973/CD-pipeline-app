@@ -8,7 +8,7 @@ on: [push, pull_request]
 jobs:
 
   build:
-    name: Build
+    name: Build and Analize
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -38,3 +38,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # SonarCloud access token should be generated from https://sonarcloud.io/account/security/
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Build Docker image
+        run: ./gradlew dockerBuildImage
+      - name: Retrieve Docker image tag value
+        run: |
+          echo '::set-output name=DOCKER_IMAGE_TAG::$(git describe)'
+        id: git_describe
+      - name: log tag
+        run: echo "The selected color is ${{ steps.git_describe.outputs.DOCKER_IMAGE_TAG }}"
+      - name: Set Docker image tag
+        run: docker tag mila973/cd-pipeline-app:latest mila973/cd-pipeline-app:${steps.git_describe.outputs.DOCKER_IMAGE_TAG}
+      - name: List Docker images
+        run: docker image ls
+
+
+

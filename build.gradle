@@ -3,6 +3,7 @@ plugins {
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
 	id "org.sonarqube" version "3.2.0"
+	id "com.bmuschko.docker-java-application" version "7.0.0"
 }
 
 group = 'com.mif'
@@ -42,5 +43,15 @@ sonarqube {
 		property "sonar.projectKey", "mila973_CD-pipeline-app"
 		property "sonar.organization", "mila973"
 		property "sonar.host.url", "https://sonarcloud.io"
+	}
+}
+
+docker {
+	javaApplication {
+		baseImage = "openjdk:11-slim"
+		maintainer = "Lukas Milasauskas 'lukas@milasauskas.com'"
+		ports = [8080]
+		images = ["mila973/cd-pipeline-app:latest"]
+		jvmArgs = ["-Xms256m", "-Xmx2048m"]
 	}
 }
