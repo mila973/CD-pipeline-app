@@ -42,12 +42,14 @@ jobs:
         run: ./gradlew dockerBuildImage
       - name: Retrieve Docker image tag value
         run: |
-          echo '::set-output name=DOCKER_IMAGE_TAG::$(git describe)'
+          echo '::set-output name=DOCKER_IMAGE_TAG::git describe'
         id: git_describe
       - name: log tag
         run: echo "The selected color is ${{ steps.git_describe.outputs.DOCKER_IMAGE_TAG }}"
       - name: Set Docker image tag
-        run: docker tag mila973/cd-pipeline-app:latest mila973/cd-pipeline-app:${steps.git_describe.outputs.DOCKER_IMAGE_TAG}
+        run: docker tag mila973/cd-pipeline-app:latest mila973/cd-pipeline-app:$DOCKER_IMAGE_TAG
+        env:
+          DOCKER_IMAGE_TAG: ${{ steps.git_describe.outputs.DOCKER_IMAGE_TAG }}
       - name: List Docker images
         run: docker image ls
 
