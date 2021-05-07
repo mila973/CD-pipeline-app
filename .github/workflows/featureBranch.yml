@@ -49,6 +49,17 @@ jobs:
         run: docker tag mila973/cd-pipeline-app:latest mila973/cd-pipeline-app:$DOCKER_IMAGE_TAG
       - name: List Docker images
         run: docker image ls
+      - name: push docker
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push images
+        run: |
+          docker push mila973/cd-pipeline-app:latest
+          docker push mila973/cd-pipeline-app:$DOCKER_IMAGE_TAG
+
 
 
 
