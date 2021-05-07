@@ -13,4 +13,9 @@ public class TaskController {
     public String getFoo() {
         return "FOO";
     }
+
+    @GetMapping("/bar")
+    public String getBar() {
+        return "BAR";
+    }
 }
