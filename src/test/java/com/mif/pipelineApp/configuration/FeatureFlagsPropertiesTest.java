@@ -34,7 +34,7 @@ public class FeatureFlagsPropertiesTest {
         FeatureFlagsProperties featureFlagsProperties = new FeatureFlagsProperties(properties);
 
         // Then
-        assertEquals(featureFlagsProperties.getValue("isEnabled"), true);
+        assertEquals(true, featureFlagsProperties.getValue("isEnabled"));
     }
 
 }
