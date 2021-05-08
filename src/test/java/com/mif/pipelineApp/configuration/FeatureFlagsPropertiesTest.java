@@ -4,11 +4,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class FeatureFlagsPropertiesTest {
-
 
     @Test
     void config_cat_client_not_initiated_on_properties_turned_off() {
@@ -21,6 +21,23 @@ class FeatureFlagsPropertiesTest {
 
         // Then
         assertNull(featureFlagsProperties.configCatClient);
+    }
+
+    @Test
+    void config_cat_client_initiated_on_properties_turned_on() {
+        // Given
+        ConfigCatConfigurationProperties properties = new ConfigCatConfigurationProperties();
+        properties.setTurnedOff(false);
+        properties.setInterval(300);
+        properties.setKey("key");
+
+        // When
+        FeatureFlagsProperties featureFlagsProperties = new FeatureFlagsProperties(properties);
+
+        // Then
+        assertNotNull(featureFlagsProperties.configCatClient);
+        assertEquals(properties.getInterval(), featureFlagsProperties.properties.getInterval());
+        assertEquals(properties.getKey(), featureFlagsProperties.properties.getKey());
     }
 
     @Test

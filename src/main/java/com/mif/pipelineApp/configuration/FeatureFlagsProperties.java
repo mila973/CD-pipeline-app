@@ -11,7 +11,7 @@ public class FeatureFlagsProperties {
 
     protected ConfigCatClient configCatClient;
 
-    private ConfigCatConfigurationProperties properties;
+    protected ConfigCatConfigurationProperties properties;
 
     public FeatureFlagsProperties(ConfigCatConfigurationProperties properties) {
         this.properties = properties;
