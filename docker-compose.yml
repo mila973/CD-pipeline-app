@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+
+  pipeline-app:
+    image: mila973/cd-pipeline-app:latest
+    container_name: cd-pipeline-app
+    ports:
+      - 80:8080

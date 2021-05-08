@@ -27,6 +27,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation "io.springfox:springfox-boot-starter:3.0.0"
 	implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+	implementation 'com.configcat:configcat-java-client:6.+'
+	implementation 'org.slf4j:slf4j-simple:1.+'
+
 
 	compileOnly 'org.projectlombok:lombok'
 //	runtimeOnly 'com.h2database:h2'
