@@ -22,6 +22,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
       - name: Cache Gradle packages
         uses: actions/cache@v1
         with:
@@ -35,28 +41,25 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
       - name: Build and analyze
-        run: ./gradlew build jacocoTestReport sonarqube --info
+#        run: ./gradlew build jacocoTestReport sonarqube --info
+        run: ./gradlew build --info
         env:
           # Needed to get some information about the pull request, if any
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # SonarCloud access token should be generated from https://sonarcloud.io/account/security/
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      - name: Build Docker image
-        run: ./gradlew dockerBuildImage
       - name: Retrieve Docker image tag value
         run: echo "DOCKER_IMAGE_TAG=$(git describe --tag)" >> $GITHUB_ENV
         id: git_describe
-      - name: Set Docker image tag
-        run: docker tag $DOCKER_REPO_NAME:latest $DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+      - name: Build and tag Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: docker build -t $ECR_REGISTRY/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG .
+      - name: log images
+        run: echo "$(docker image ls)"
 #      - name: Login to Docker Hub
 #        uses: docker/login-action@v1
 #        with:
