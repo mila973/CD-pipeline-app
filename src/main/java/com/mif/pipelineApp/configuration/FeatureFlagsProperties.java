@@ -9,7 +9,7 @@ import java.util.Optional;
 @Component
 public class FeatureFlagsProperties {
 
-    private ConfigCatClient configCatClient;
+    protected ConfigCatClient configCatClient;
 
     private ConfigCatConfigurationProperties properties;
 
