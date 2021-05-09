@@ -5,6 +5,7 @@ build/
 !**/src/main/**
 !**/src/test/**
 */.DS_Store
+key.json
 
 ### STS ###
 .apt_generated
