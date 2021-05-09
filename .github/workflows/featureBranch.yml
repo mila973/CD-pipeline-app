@@ -1,25 +1,24 @@
 # This workflow will build a Java project with Gradle
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
-name: Java CI with Gradle
+name: Push to branches workflow
 
 on:
   push:
     branches:
       - '**'
-      - '!main'
 
 jobs:
 
   build:
-    name: Build and Analize
+    name: Build, Analize, Push Docker Image
     runs-on: ubuntu-latest
     env:
       DOCKER_REPO_NAME: cd-pipeline-app
       PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-      GKE_CLUSTER: my-first-cluster-1    # Add your cluster name here.
-      GKE_ZONE: europe-central2-a   # Add your cluster zone here.
-      DEPLOYMENT_NAME: gke-test # Add your deployment name here.
+      GKE_CLUSTER: my-first-cluster-1
+      GKE_ZONE: europe-central2-a
+      DEPLOYMENT_NAME: gke-test
     steps:
       - uses: actions/checkout@v2
         with:
@@ -29,12 +28,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-#      - name: Configure AWS credentials
-#        uses: aws-actions/configure-aws-credentials@v1
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          aws-region: ${{ env.AWS_REGION }}
       - name: Cache Gradle packages
         uses: actions/cache@v1
         with:
@@ -48,8 +41,7 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
       - name: Build and analyze
-#        run: ./gradlew build jacocoTestReport sonarqube --info
-        run: ./gradlew build --info
+        run: ./gradlew build jacocoTestReport sonarqube --info
         env:
           # Needed to get some information about the pull request, if any
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -58,37 +50,30 @@ jobs:
       - name: Retrieve Docker image tag value
         run: echo "DOCKER_IMAGE_TAG=$(git describe --tag)" >> $GITHUB_ENV
         id: git_describe
-#      - name: Login to Amazon ECR
-#        id: login-ecr
-#        uses: aws-actions/amazon-ecr-login@v1
       # Setup gcloud CLI
       - uses: google-github-actions/setup-gcloud@v0.2.0
+        if: ${{ github.ref == 'ref/head/main' }}
         with:
           service_account_key: ${{ secrets.GKE_SA_KEY }}
           project_id: ${{ secrets.GKE_PROJECT }}
 
       # Configure docker to use the gcloud command-line tool as a credential helper
-      - run: |-
+      - name: Configure GCloud Docker
+        if: ${{ github.ref == 'ref/head/main' }}
+        run: |-
           gcloud --quiet auth configure-docker
 
       # Get the GKE credentials so we can deploy to the cluster
       - uses: google-github-actions/get-gke-credentials@v0.2.1
+        if: ${{ github.ref == 'ref/head/main' }}
         with:
           cluster_name: ${{ env.GKE_CLUSTER }}
           location: ${{ env.GKE_ZONE }}
           credentials: ${{ secrets.GKE_SA_KEY }}
       - name: Build and tag Docker image
         run: docker build -t gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG .
-      - name: log images
-        run: echo "$(docker image ls)"
-#      - name: Login to Docker Hub
-#        uses: docker/login-action@v1
-#        with:
-#          username: ${{ secrets.DOCKERHUB_USERNAME }}
-#          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # Push the Docker image to Google Container Registry
       - name: Publish
+        if: ${{ github.ref == 'ref/head/main' }}
         run: |-
           docker push "gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG"
 
