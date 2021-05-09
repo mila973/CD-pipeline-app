@@ -2,6 +2,7 @@ package com.mif.pipelineApp.controller.v1;
 
 
 import com.mif.pipelineApp.configuration.FeatureFlagsProperties;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
 @RequestMapping("/task")
+@AllArgsConstructor
 public class TaskController {
 
     @Autowired
