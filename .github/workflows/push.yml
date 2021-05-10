@@ -42,31 +42,31 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-      - name: Build and analyze
-        run: ./gradlew build jacocoTestReport sonarqube --info
-        env:
-          # Needed to get some information about the pull request, if any
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # SonarCloud access token should be generated from https://sonarcloud.io/account/security/
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#      - name: Build and analyze
+#        run: ./gradlew build jacocoTestReport sonarqube --info
+#        env:
+#          # Needed to get some information about the pull request, if any
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          # SonarCloud access token should be generated from https://sonarcloud.io/account/security/
+#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Retrieve Docker image tag value
         run: echo "DOCKER_IMAGE_TAG=$(git describe --tag)" >> $GITHUB_ENV
         id: git_describe
-      - name: Extract Branch Name
-        run: echo "BRANCH=$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
-      # Setup gcloud CLI
-      - uses: google-github-actions/setup-gcloud@v0.2.0
-        if: ${{ env.BRANCH == 'main' }}
-        with:
-          service_account_key: ${{ secrets.GKE_SA_KEY }}
-          project_id: ${{ secrets.GKE_PROJECT }}
-
-      # Configure docker to use the gcloud command-line tool as a credential helper
-      - name: Configure GCloud Docker
-        if: ${{ env.BRANCH == 'main' }}
-        run: |-
-          gcloud --quiet auth configure-docker
-
+#      - name: Extract Branch Name
+#        run: echo "BRANCH=$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
+#      # Setup gcloud CLI
+#      - uses: google-github-actions/setup-gcloud@v0.2.0
+#        if: ${{ env.BRANCH == 'main' }}
+#        with:
+#          service_account_key: ${{ secrets.GKE_SA_KEY }}
+#          project_id: ${{ secrets.GKE_PROJECT }}
+#
+#      # Configure docker to use the gcloud command-line tool as a credential helper
+#      - name: Configure GCloud Docker
+#        if: ${{ env.BRANCH == 'main' }}
+#        run: |-
+#          gcloud --quiet auth configure-docker
+#
 #      # Get the GKE credentials so we can deploy to the cluster
 #      - uses: google-github-actions/get-gke-credentials@v0.2.1
 #        if: ${{ env.BRANCH == 'main' }}
@@ -74,19 +74,19 @@ jobs:
 #          cluster_name: ${{ env.GKE_CLUSTER }}
 #          location: ${{ env.GKE_ZONE }}
 #          credentials: ${{ secrets.GKE_SA_KEY }}
-      - name: Build and tag Docker image
-        run: docker build -t gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG -t mila973/cd-pipeline-app:latest .
-      - name: Execute Acceptance Testing
-        run: ./acceptance-tests/gradlew test
-      - name: Publish
-        if: ${{ env.BRANCH == 'main' }}
-        run: |-
-          docker push "gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG"
+#      - name: Build and tag Docker image
+#        run: docker build -t gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG -t mila973/cd-pipeline-app:latest .
+#      - name: Execute Acceptance Testing
+#        run: ./acceptance-tests/gradlew test
+#      - name: Publish
+#        if: ${{ env.BRANCH == 'main' }}
+#        run: |-
+#          docker push "gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG"
     outputs:
       docker_image_tag: ${{ env.DOCKER_IMAGE_TAG }}
 
 
-  deploy:
+  deploy-test:
     name: Deploy to Test Environment
     runs-on: ubuntu-latest
     if: contains('refs/heads/main', github.ref)
@@ -98,6 +98,25 @@ jobs:
           fetch-depth: 0
       - name: Deploy to Test environment
         run: echo "Deploy to Test Environment with tag ${{ needs.build.outputs.docker_image_tag }}"
+
+  deploy-prod:
+    name: Deploy to Production Environment
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && contains(github.ref, '/heads/master') && contains(github.ref, '/tags/')
+    needs: [build, deploy-test]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
+      - name: Set release version
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      - name: Test
+        run: |
+          echo $RELEASE_VERSION
+          echo ${{ env.RELEASE_VERSION }}
+      - name: Deploy to Production environment
+        run: echo "Deploy to Production Environment with tag ${{ env.RELEASE_VERSION }}"
 
 
 
