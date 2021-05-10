@@ -1,1 +1,15 @@
+server.port: 8080
+#spring:
+#  main:
+#    allow-bean-definition-overriding: true
+
+open-weather:
+  api-key: ab517c0852c9f0bd8cca1cbc9430414d
+
+config-cat:
+  turned-off: true
+  interval: 300
+  key: LRLZCE3N0EiM2Ghp911qWA/TMBYha-QX02mgs-F-H2RZA
+  flags:
+    isFooEnabled: false
 
