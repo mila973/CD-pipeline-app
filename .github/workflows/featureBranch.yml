@@ -71,7 +71,9 @@ jobs:
           location: ${{ env.GKE_ZONE }}
           credentials: ${{ secrets.GKE_SA_KEY }}
       - name: Build and tag Docker image
-        run: docker build -t gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG .
+        run: docker build -t gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG -t mila973/cd-pipeline-app:latest .
+      - name: Execute Acceptance Testing
+        run: ./acceptance-tests/gradlew test
       - name: Publish
         if: ${{ github.ref == 'ref/head/main' }}
         run: |-
