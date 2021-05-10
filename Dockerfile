@@ -4,5 +4,5 @@ WORKDIR /app
 COPY build/libs libs/
 COPY build/resources resources/
 COPY build/classes classes/
-ENTRYPOINT ["java", "-Xms256m", "-Xmx2048m", "-cp", "/app/resources:/app/classes:/app/libs/*", "com.mif.pipelineApp.SamplePipelineApplication"]
+ENTRYPOINT ["java", "-Xms256m", "-Xmx2048m", "-cp", "/app/resources:/app/classes:/app/libs/*", "com.mif.pipeline.SamplePipelineApplication"]
 EXPOSE 8080

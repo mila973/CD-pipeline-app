@@ -1,4 +1,4 @@
-package com.mif.pipelineApp.util;
+package com.mif.pipeline.util;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;

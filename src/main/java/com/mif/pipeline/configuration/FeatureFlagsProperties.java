@@ -1,4 +1,4 @@
-package com.mif.pipelineApp.configuration;
+package com.mif.pipeline.configuration;
 
 import com.configcat.ConfigCatClient;
 import com.configcat.PollingModes;

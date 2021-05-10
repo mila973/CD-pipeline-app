@@ -1,7 +1,7 @@
-package com.mif.pipelineApp.controller.v1;
+package com.mif.pipeline.controller.v1;
 
-import com.mif.pipelineApp.model.WeatherResponse;
-import com.mif.pipelineApp.service.LiveWeatherService;
+import com.mif.pipeline.model.WeatherResponse;
+import com.mif.pipeline.service.LiveWeatherService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

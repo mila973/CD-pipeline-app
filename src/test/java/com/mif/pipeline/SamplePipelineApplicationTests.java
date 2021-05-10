@@ -1,4 +1,4 @@
-package com.mif.pipelineApp;
+package com.mif.pipeline;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

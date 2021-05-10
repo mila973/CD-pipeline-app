@@ -1,4 +1,4 @@
-package com.mif.pipelineApp.model;
+package com.mif.pipeline.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

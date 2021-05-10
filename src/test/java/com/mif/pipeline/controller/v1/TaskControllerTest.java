@@ -1,7 +1,7 @@
-package com.mif.pipelineApp.controller.v1;
+package com.mif.pipeline.controller.v1;
 
 
-import com.mif.pipelineApp.configuration.FeatureFlagsProperties;
+import com.mif.pipeline.configuration.FeatureFlagsProperties;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.web.server.ResponseStatusException;

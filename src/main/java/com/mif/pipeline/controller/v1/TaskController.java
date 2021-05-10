@@ -1,7 +1,7 @@
-package com.mif.pipelineApp.controller.v1;
+package com.mif.pipeline.controller.v1;
 
 
-import com.mif.pipelineApp.configuration.FeatureFlagsProperties;
+import com.mif.pipeline.configuration.FeatureFlagsProperties;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +21,7 @@ public class TaskController {
 
     @GetMapping("/foo")
     public String getFoo() {
-        if (featureFlagsProperties.getValue("isFooEnabled")) {
+        if (Boolean.TRUE.equals(featureFlagsProperties.getValue("isFooEnabled"))) {
             return "FOO";
         }
 

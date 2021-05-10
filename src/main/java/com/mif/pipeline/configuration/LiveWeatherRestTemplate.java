@@ -1,4 +1,4 @@
-package com.mif.pipelineApp.configuration;
+package com.mif.pipeline.configuration;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
