@@ -39,39 +39,42 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-#      - name: Build and analyze
-#        run: ./gradlew build jacocoTestReport sonarqube --info
-#        env:
-#          # Needed to get some information about the pull request, if any
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          # SonarCloud access token should be generated from https://sonarcloud.io/account/security/
-#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Build and analyze
+        run: ./gradlew build jacocoTestReport sonarqube --info
+        env:
+          # Needed to get some information about the pull request, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # SonarCloud access token should be generated from https://sonarcloud.io/account/security/
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Retrieve Docker image tag value
         run: echo "DOCKER_IMAGE_TAG=$(git describe --tag)" >> $GITHUB_ENV
         id: git_describe
-#      - name: Extract Branch Name
-#        run: echo "BRANCH=$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
-#      # Setup gcloud CLI
-#      - uses: google-github-actions/setup-gcloud@v0.2.0
-#        if: ${{ env.BRANCH == 'main' }}
-#        with:
-#          service_account_key: ${{ secrets.GKE_SA_KEY }}
-#          project_id: ${{ secrets.GKE_PROJECT }}
-#
-#      # Configure docker to use the gcloud command-line tool as a credential helper
-#      - name: Configure GCloud Docker
-#        if: ${{ env.BRANCH == 'main' }}
-#        run: |-
-#          gcloud --quiet auth configure-docker
-#
-#      - name: Build and tag Docker image
-#        run: docker build -t gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG -t mila973/cd-pipeline-app:latest .
-#      - name: Execute Acceptance Testing
-#        run: ./acceptance-tests/gradlew test
-#      - name: Publish
-#        if: ${{ env.BRANCH == 'main' }}
-#        run: |-
-#          docker push "gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG"
+      - name: Extract Branch Name
+        run: echo "BRANCH=$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
+      # Setup gcloud CLI
+      - uses: google-github-actions/setup-gcloud@v0.2.0
+        if: ${{ env.BRANCH == 'main' }}
+        with:
+          service_account_key: ${{ secrets.GKE_SA_KEY }}
+          project_id: ${{ secrets.GKE_PROJECT }}
+
+      # Configure docker to use the gcloud command-line tool as a credential helper
+      - name: Configure GCloud Docker
+        if: ${{ env.BRANCH == 'main' }}
+        run: |-
+          gcloud --quiet auth configure-docker
+
+
+      - name: Build and tag Docker image
+        run: |
+          ./gradlew dockerBuildImage
+          docker tag mila973/cd-pipeline-app:latest gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG
+      - name: Execute Acceptance Testing
+        run: ./acceptance-tests/gradlew test
+      - name: Publish
+        if: ${{ env.BRANCH == 'main' }}
+        run: |-
+          docker push "gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG"
     outputs:
       docker_image_tag: ${{ env.DOCKER_IMAGE_TAG }}
 
@@ -84,6 +87,7 @@ jobs:
     env:
       GKE_CLUSTER: cluster-1
       GKE_ZONE: europe-central2-a
+      IMAGE_TAG: ${{ needs.build.outputs.docker_image_tag }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -104,7 +108,7 @@ jobs:
       - name: Deploy to Test environment
         run: |
           chmod +x "./k8s/deploy.sh"
-          ./k8s/deploy.sh --set image.tag=0.1.0-21-g587ee5c --namespace="default" --wait --timeout 10m
+          ./k8s/deploy.sh --set image.tag=$IMAGE_TAG --namespace="test" --wait --timeout 10m
 
   deploy-prod:
     name: Deploy to Production Environment
@@ -122,8 +126,20 @@ jobs:
         run: |
           echo $RELEASE_VERSION
           echo ${{ env.RELEASE_VERSION }}
+      # Get the GKE credentials so we can deploy to the cluster
+      - uses: google-github-actions/get-gke-credentials@v0.2.1
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
+          credentials: ${{ secrets.GKE_SA_KEY }}
+      - uses: azure/setup-helm@v1
+        with:
+          version: v3.0.1
+        id: install
       - name: Deploy to Production environment
-        run: echo "Deploy to Production Environment with tag ${{ env.RELEASE_VERSION }}"
+        run: |
+          chmod +x "./k8s/deploy.sh"
+          ./k8s/deploy.sh --set image.tag=$RELEASE_VERSION --namespace="prod" --wait --timeout 10m
 
 
 
