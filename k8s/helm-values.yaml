@@ -1,0 +1,61 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+project: horizontal-data-313209
+nameOverride: cd-pipeline-app
+replicaCount: 1
+updateStrategy:
+  type: RollingUpdate
+global:
+  image:
+    repository: gcr.io/horizontal-data-313209
+image:
+  name: cd-pipeline-app
+  tag: latest
+  pullPolicy: Always
+service:
+  enabled: true
+  name: http
+  type: ClusterIP
+  externalPort: 8080
+  internalPort: 8080
+
+ingress:
+  enabled: false
+#  kong:
+#    stripPath: false
+#    preserveHost: false
+#  paths:
+#    - /task
+#    - /v1/weather
+
+logging:
+  enabled: false
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 512Mi
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/self
+    port: 8080
+  initialDelaySeconds: 150
+  periodSeconds: 5
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 2
+
+timezone: Europe/Vilnius
+
+# If "hard" then do not run more than 1 pod on the same node
+antiAffinity: soft
+
+podUID: 999
