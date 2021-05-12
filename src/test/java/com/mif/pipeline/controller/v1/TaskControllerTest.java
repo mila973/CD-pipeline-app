@@ -2,9 +2,12 @@ package com.mif.pipeline.controller.v1;
 
 
 import com.mif.pipeline.configuration.FeatureFlagsProperties;
+import com.mif.pipeline.service.FactorialService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.math.BigInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -16,7 +19,10 @@ class TaskControllerTest {
     @Mock
     private FeatureFlagsProperties featureFlagsProperties = mock(FeatureFlagsProperties.class);
 
-    private TaskController controller = new TaskController(featureFlagsProperties);
+    @Mock
+    private FactorialService factorialService = mock(FactorialService.class);
+
+    private TaskController controller = new TaskController(featureFlagsProperties, factorialService);
 
     @Test
     void throws_404_when_foo_disabled() {
@@ -45,11 +51,23 @@ class TaskControllerTest {
 
     @Test
     void returns_bar_when_bar_called() {
-        // When
+        // Given, When
         String result = controller.getBar();
 
         // Then
         assertEquals("BAR", result);
+    }
+
+    @Test
+    void returns_24_when_factorial_called_with_4() {
+        // Given
+        BigInteger expectedResult = BigInteger.valueOf(24);
+        given(factorialService.calculateFactorial(4))
+            .willReturn(expectedResult);
+        // When
+        BigInteger result = controller.getFactorial(4);
+        // Then
+        assertEquals(expectedResult, result);
     }
 
 }
