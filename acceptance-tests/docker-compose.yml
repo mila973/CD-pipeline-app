@@ -5,5 +5,7 @@ services:
   pipeline-app:
     image: mila973/cd-pipeline-app:latest
     container_name: cd-pipeline-app
+    environment:
+      - CONFIG_CAT_TURNED_OFF=true
     ports:
       - 8080:8080
