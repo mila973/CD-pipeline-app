@@ -1,0 +1,16 @@
+@startuml
+skinparam ConditionEndStyle hline
+skinparam defaultTextAlignment center
+start
+
+    partition "GitHub Actions" {
+        :Nuolatinės integracijos žingsnių vykdymas;
+        :Atvaizdas sukeliamas į konteinerių saugyklą;
+        :Inicijuojamas diegimas į testinę aplinką;
+        partition "Kubernetes" {
+            :Orkestruojamas naujos versijos diegimas;
+            :Tikrinama mikroserviso gyvavimo sąsaja;
+        }
+    }
+stop
+@enduml

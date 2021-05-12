@@ -21,12 +21,14 @@ service:
 
 ingress:
   enabled: false
-#  kong:
-#    stripPath: false
-#    preserveHost: false
-#  paths:
-#    - /task
-#    - /v1/weather
+
+env:
+  OPEN_WEATHER_API_KEY:
+    value:
+    sensitive: true
+  CONFIG_CAT_KEY:
+    value:
+    sensitive: true
 
 logging:
   enabled: false

@@ -1,0 +1,15 @@
+@startuml
+skinparam ConditionEndStyle hline
+skinparam defaultTextAlignment center
+start
+
+    partition "GitHub Actions" {
+        :Statinė analizės vykdymas, pasinaudojant įrankiu SonarCloud;
+        :Vienetų ir komponentų testų vykdymas;
+        :Artefakto kūrimas;
+        :Artefakto Docker atvaizdo kūrimas;
+        :Priėmimo testų vykdymas;
+    }
+
+stop
+@enduml

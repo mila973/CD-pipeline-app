@@ -88,6 +88,8 @@ jobs:
       GKE_CLUSTER: cluster-1
       GKE_ZONE: europe-central2-a
       IMAGE_TAG: ${{ needs.build.outputs.docker_image_tag }}
+      CONFIG_CAT_KEY: ${{ secrets.CONFIG_CAT_KEY_TEST }}
+      OPEN_WEATHER_API_KEY: ${{ secrets.OPEN_WEATHER_API_KEY }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -108,7 +110,7 @@ jobs:
       - name: Deploy to Test environment
         run: |
           chmod +x "./k8s/deploy.sh"
-          ./k8s/deploy.sh --set image.tag=$IMAGE_TAG --namespace="test" --wait --timeout 10m
+          ./k8s/deploy.sh --set image.tag=$IMAGE_TAG --set env.OPEN_WEATHER_API_KEY.value=$OPEN_WEATHER_API_KEY --set env.CONFIG_CAT_KEY.value=$CONFIG_CAT_KEY --namespace="test" --wait --timeout 10m
 
   deploy-prod:
     name: Deploy to Production Environment
@@ -118,6 +120,8 @@ jobs:
     env:
       GKE_CLUSTER: cluster-1
       GKE_ZONE: europe-central2-a
+      CONFIG_CAT_KEY: ${{ secrets.CONFIG_CAT_KEY_PROD }}
+      OPEN_WEATHER_API_KEY: ${{ secrets.OPEN_WEATHER_API_KEY }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -142,7 +146,7 @@ jobs:
       - name: Deploy to Production environment
         run: |
           chmod +x "./k8s/deploy.sh"
-          ./k8s/deploy.sh --set image.tag=$RELEASE_VERSION --namespace="prod" --wait --timeout 10m
+          ./k8s/deploy.sh --set image.tag=$RELEASE_VERSION --set env.OPEN_WEATHER_API_KEY.value=$OPEN_WEATHER_API_KEY --set env.CONFIG_CAT_KEY.value=$CONFIG_CAT_KEY --namespace="prod" --wait --timeout 10m
 
 
 

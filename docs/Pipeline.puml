@@ -1,0 +1,25 @@
+@startuml
+skinparam ConditionEndStyle hline
+skinparam defaultTextAlignment center
+start
+
+    repeat
+    partition "Programuotojo kompiuteris" {
+        :Programuotojo atliekami pakeitimai į funkcionalumų šaką;
+        :Pakeitimai sukeliami į GitHub;
+    }
+
+
+    partition "GitHub Actions" {
+        :Nuolatinės integracijos žingsnių vykdymas;
+    }
+    :Kodo peržiūra;
+    repeat while (Ar reikalingi pataisymai?) is (Taip) not (Ne);
+
+    :Programuotojas apjungia funkcionalumo šaką su pagrindinę;
+
+    partition "GitHub Actions" {
+        :Diegimo į testinę aplinką žingsnių vykdymas;
+    }
+stop
+@enduml
