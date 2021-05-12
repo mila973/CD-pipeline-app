@@ -2,6 +2,7 @@ package com.mif.pipeline.controller.v1;
 
 
 import com.mif.pipeline.configuration.FeatureFlagsProperties;
+import com.mif.pipeline.service.FactorialService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,7 +17,10 @@ class TaskControllerTest {
     @Mock
     private FeatureFlagsProperties featureFlagsProperties = mock(FeatureFlagsProperties.class);
 
-    private TaskController controller = new TaskController(featureFlagsProperties);
+    @Mock
+    private FactorialService factorialService = mock(FactorialService.class);
+
+    private TaskController controller = new TaskController(featureFlagsProperties, factorialService);
 
     @Test
     void throws_404_when_foo_disabled() {

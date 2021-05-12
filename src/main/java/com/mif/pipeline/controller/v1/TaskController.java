@@ -2,12 +2,16 @@ package com.mif.pipeline.controller.v1;
 
 
 import com.mif.pipeline.configuration.FeatureFlagsProperties;
+import com.mif.pipeline.service.FactorialService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.math.BigInteger;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -18,6 +22,9 @@ public class TaskController {
 
     @Autowired
     FeatureFlagsProperties featureFlagsProperties;
+
+    @Autowired
+    FactorialService factorialService;
 
     @GetMapping("/foo")
     public String getFoo() {
@@ -31,5 +38,10 @@ public class TaskController {
     @GetMapping("/bar")
     public String getBar() {
         return "BAR";
+    }
+
+    @PostMapping("/factorial")
+    public BigInteger countFactorial(int number) {
+        return factorialService.calculateFactorial(number);
     }
 }
