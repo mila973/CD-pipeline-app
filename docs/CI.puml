@@ -4,9 +4,13 @@ skinparam defaultTextAlignment center
 start
 
     partition "GitHub Actions" {
-        :Statinė analizės vykdymas, pasinaudojant įrankiu SonarCloud;
+        fork
         :Vienetų ir komponentų testų vykdymas;
+        fork again
         :Artefakto kūrimas;
+        fork again
+        :Statinės analizės vykdymas, pasinaudojant įrankiu SonarCloud;
+        end fork
         :Artefakto Docker atvaizdo kūrimas;
         :Priėmimo testų vykdymas;
     }

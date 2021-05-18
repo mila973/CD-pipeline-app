@@ -9,7 +9,7 @@ start
         :Inicijuojamas diegimas į testinę aplinką;
         partition "Kubernetes" {
             :Orkestruojamas naujos versijos diegimas;
-            :Tikrinama mikroserviso gyvavimo sąsaja;
+            :Tikrinama mikroserviso sveikatos sąsaja;
         }
     }
 stop

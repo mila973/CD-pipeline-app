@@ -6,11 +6,11 @@ start
     :GitHub grafinės sąsajos pagalba sukuriama nauja Git žyma, pažyminti programos versiją;
 
     partition "GitHub Actions" {
-        :Pirmo ir antro žingsnio vykdymas;
+        :Diegimo į testinę aplinką žingsnių vykdymas;
         :Inicijuojamas diegimas į produkcinę aplinką;
         partition "Kubernetes" {
             :Orkestruojamas naujos versijos diegimas;
-            :Tikrinama mikroserviso gyvavimo sąsaja;
+            :Tikrinama mikroserviso sveikatos sąsaja;
         }
     }
 stop
