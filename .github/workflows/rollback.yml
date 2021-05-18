@@ -9,7 +9,7 @@ on:
 
 jobs:
   rollback:
-    name: Deploy to Production Environment
+    name: Rollback Production Environment
     runs-on: ubuntu-latest
     env:
       GKE_CLUSTER: cluster-1
@@ -20,13 +20,17 @@ jobs:
       PROJECT_ID: ${{ secrets.GKE_PROJECT }}
       IMAGE_TAG: ${{ github.event.inputs.tag }}
     steps:
+      - uses: actions/checkout@v2
+        with:
+          # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
       - uses: google-github-actions/get-gke-credentials@v0.2.1
         with:
           cluster_name: ${{ env.GKE_CLUSTER }}
           location: ${{ env.GKE_ZONE }}
           credentials: ${{ secrets.GKE_SA_KEY }}
       - run: |
-          echo "Tags: ${{ github.event.inputs.tag }}"
+          echo "Tag: ${{ github.event.inputs.tag }}"
       - uses: google-github-actions/setup-gcloud@v0.2.0
         with:
           service_account_key: ${{ secrets.GKE_SA_KEY }}
@@ -37,5 +41,18 @@ jobs:
           gcloud --quiet auth configure-docker
       - run: |
           docker pull gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$IMAGE_TAG
+      - uses: google-github-actions/get-gke-credentials@v0.2.1
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
+          credentials: ${{ secrets.GKE_SA_KEY }}
+      - uses: azure/setup-helm@v1
+        with:
+          version: v3.0.1
+        id: install
+      - name: Deploy to Production environment
+        run: |
+          chmod +x "./k8s/deploy.sh"
+          ./k8s/deploy.sh --set image.tag=$IMAGE_TAG --set env.OPEN_WEATHER_API_KEY.value=$OPEN_WEATHER_API_KEY --set env.CONFIG_CAT_KEY.value=$CONFIG_CAT_KEY --namespace="prod" --wait --timeout 10m
 
 

@@ -95,8 +95,6 @@ jobs:
         with:
           # Shallow clones should be disabled for a better relevancy of analysis
           fetch-depth: 0
-      - name: Deploy to Test environment
-        run: echo "Deploy to Test Environment with tag ${{ needs.build.outputs.docker_image_tag }}"
       # Get the GKE credentials so we can deploy to the cluster
       - uses: google-github-actions/get-gke-credentials@v0.2.1
         with:
@@ -129,10 +127,6 @@ jobs:
           fetch-depth: 0
       - name: Set release version
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-      - name: Test
-        run: |
-          echo $RELEASE_VERSION
-          echo ${{ env.RELEASE_VERSION }}
       # Get the GKE credentials so we can deploy to the cluster
       - uses: google-github-actions/get-gke-credentials@v0.2.1
         with:
