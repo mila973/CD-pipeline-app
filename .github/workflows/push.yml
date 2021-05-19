@@ -41,41 +41,41 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-#      - name: Build and analyze
-#        run: ./gradlew build jacocoTestReport sonarqube --info
-#        env:
-#          # Needed to get some information about the pull request, if any
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          # SonarCloud access token should be generated from https://sonarcloud.io/account/security/
-#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-#      - name: Retrieve Docker image tag value
-#        run: echo "DOCKER_IMAGE_TAG=$(git describe --tag)" >> $GITHUB_ENV
-#        id: git_describe
-#      - name: Extract Branch Name
-#        run: echo "BRANCH=$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
-#      # Setup gcloud CLI
-#      - uses: google-github-actions/setup-gcloud@v0.2.0
-#        if: ${{ env.BRANCH == 'main' }} || (github.event_name == 'push' && contains(github.ref, '/tags/'))
-#        with:
-#          service_account_key: ${{ secrets.GKE_SA_KEY }}
-#          project_id: ${{ secrets.GKE_PROJECT }}
-#
-#      # Configure docker to use the gcloud command-line tool as a credential helper
-#      - name: Configure GCloud Docker
-#        if: ${{ env.BRANCH == 'main' }} || (github.event_name == 'push' && contains(github.ref, '/tags/'))
-#        run: |-
-#          gcloud --quiet auth configure-docker
-#
-#      - name: Build and tag Docker image
-#        run: |
-#          ./gradlew dockerBuildImage
-#          docker tag mila973/cd-pipeline-app:latest gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG
-#      - name: Execute Acceptance Testing
-#        run: ./acceptance-tests/gradlew test
-#      - name: Publish
-#        if: ${{ env.BRANCH == 'main' }} || (github.event_name == 'push' && contains(github.ref, '/tags/'))
-#        run: |-
-#          docker push "gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG"
+      - name: Build and analyze
+        run: ./gradlew build jacocoTestReport sonarqube --info
+        env:
+          # Needed to get some information about the pull request, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # SonarCloud access token should be generated from https://sonarcloud.io/account/security/
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Retrieve Docker image tag value
+        run: echo "DOCKER_IMAGE_TAG=$(git describe --tag)" >> $GITHUB_ENV
+        id: git_describe
+      - name: Extract Branch Name
+        run: echo "BRANCH=$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
+      # Setup gcloud CLI
+      - uses: google-github-actions/setup-gcloud@v0.2.0
+        if: ${{ env.BRANCH == 'main' }} || (github.event_name == 'push' && contains(github.ref, '/tags/'))
+        with:
+          service_account_key: ${{ secrets.GKE_SA_KEY }}
+          project_id: ${{ secrets.GKE_PROJECT }}
+
+      # Configure docker to use the gcloud command-line tool as a credential helper
+      - name: Configure GCloud Docker
+        if: ${{ env.BRANCH == 'main' }} || (github.event_name == 'push' && contains(github.ref, '/tags/'))
+        run: |-
+          gcloud --quiet auth configure-docker
+
+      - name: Build and tag Docker image
+        run: |
+          ./gradlew dockerBuildImage
+          docker tag mila973/cd-pipeline-app:latest gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG
+      - name: Execute Acceptance Testing
+        run: ./acceptance-tests/gradlew test
+      - name: Publish
+        if: ${{ env.BRANCH == 'main' }} || (github.event_name == 'push' && contains(github.ref, '/tags/'))
+        run: |-
+          docker push "gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG"
       - name: Trigger deploy workflow
         if: ${{ env.BRANCH == 'main' }} || (github.event_name == 'push' && contains(github.ref, '/tags/'))
         uses: benc-uk/workflow-dispatch@v1
