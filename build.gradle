@@ -5,6 +5,7 @@ plugins {
 	id "jacoco"
 	id "org.sonarqube" version "3.2.0"
 	id "com.bmuschko.docker-java-application" version "7.0.0"
+	id "com.gorylenko.gradle-git-properties" version "2.3.1"
 }
 
 group = 'com.mif'
@@ -67,4 +68,10 @@ docker {
 		images = ["mila973/cd-pipeline-app:latest"]
 		jvmArgs = ["-Xms256m", "-Xmx2048m"]
 	}
+}
+
+gitProperties {
+	customProperty 'git.commit.id.describe', { it.describe(tags: true) }
+	failOnNoGitDirectory = false
+	gitPropertiesName = "git.properties"
 }

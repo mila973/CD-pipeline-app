@@ -71,7 +71,10 @@ jobs:
           ./gradlew dockerBuildImage
           docker tag mila973/cd-pipeline-app:latest gcr.io/$PROJECT_ID/$DOCKER_REPO_NAME:$DOCKER_IMAGE_TAG
       - name: Execute Acceptance Testing
-        run: ./acceptance-tests/gradlew test
+        run: |
+          cd acceptance-tests/
+          ./gradlew test
+          cd ../
       - name: Publish
         if: ${{ env.BRANCH == 'main' }} || (github.event_name == 'push' && contains(github.ref, '/tags/'))
         run: |-
@@ -83,74 +86,3 @@ jobs:
           workflow: Deploy to Test and Prod
           token: ${{ secrets.PERSONAL_TOKEN }}
           inputs: "{ \"tag\": \"${{ env.DOCKER_TAG }}\", \"prod\": \"${{ env.PROD_DEPLOYMENT_REQUIRED }}\" }"
-
-#    outputs:
-#      docker_image_tag: ${{ env.DOCKER_IMAGE_TAG }}
-#
-#
-#  deploy-test:
-#    name: Deploy to Test Environment
-#    runs-on: ubuntu-latest
-#    if: contains('refs/heads/main', github.ref) || (github.event_name == 'push' && contains(github.ref, '/tags/'))
-#    needs: build
-#    env:
-#      GKE_CLUSTER: cluster-1
-#      GKE_ZONE: europe-central2-a
-#      IMAGE_TAG: ${{ needs.build.outputs.docker_image_tag }}
-#      CONFIG_CAT_KEY: ${{ secrets.CONFIG_CAT_KEY_TEST }}
-#      OPEN_WEATHER_API_KEY: ${{ secrets.OPEN_WEATHER_API_KEY }}
-#    steps:
-#      - uses: actions/checkout@v2
-#        with:
-#          # Shallow clones should be disabled for a better relevancy of analysis
-#          fetch-depth: 0
-#      # Get the GKE credentials so we can deploy to the cluster
-#      - uses: google-github-actions/get-gke-credentials@v0.2.1
-#        with:
-#          cluster_name: ${{ env.GKE_CLUSTER }}
-#          location: ${{ env.GKE_ZONE }}
-#          credentials: ${{ secrets.GKE_SA_KEY }}
-#      - uses: azure/setup-helm@v1
-#        with:
-#          version: v3.0.1
-#        id: install
-#      - name: Deploy to Test environment
-#        run: |
-#          chmod +x "./k8s/deploy.sh"
-#          ./k8s/deploy.sh --set image.tag=$IMAGE_TAG --set env.OPEN_WEATHER_API_KEY.value=$OPEN_WEATHER_API_KEY --set env.CONFIG_CAT_KEY.value=$CONFIG_CAT_KEY --namespace="test" --wait --timeout 10m
-#
-#  deploy-prod:
-#    name: Deploy to Production Environment
-#    runs-on: ubuntu-latest
-#    if: github.event_name == 'push' && contains(github.ref, '/tags/')
-#    needs: [build, deploy-test]
-#    env:
-#      GKE_CLUSTER: cluster-1
-#      GKE_ZONE: europe-central2-a
-#      CONFIG_CAT_KEY: ${{ secrets.CONFIG_CAT_KEY_PROD }}
-#      OPEN_WEATHER_API_KEY: ${{ secrets.OPEN_WEATHER_API_KEY }}
-#    steps:
-#      - uses: actions/checkout@v2
-#        with:
-#          # Shallow clones should be disabled for a better relevancy of analysis
-#          fetch-depth: 0
-#      - name: Set release version
-#        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-#      # Get the GKE credentials so we can deploy to the cluster
-#      - uses: google-github-actions/get-gke-credentials@v0.2.1
-#        with:
-#          cluster_name: ${{ env.GKE_CLUSTER }}
-#          location: ${{ env.GKE_ZONE }}
-#          credentials: ${{ secrets.GKE_SA_KEY }}
-#      - uses: azure/setup-helm@v1
-#        with:
-#          version: v3.0.1
-#        id: install
-#      - name: Deploy to Production environment
-#        run: |
-#          chmod +x "./k8s/deploy.sh"
-#          ./k8s/deploy.sh --set image.tag=$RELEASE_VERSION --set env.OPEN_WEATHER_API_KEY.value=$OPEN_WEATHER_API_KEY --set env.CONFIG_CAT_KEY.value=$CONFIG_CAT_KEY --namespace="prod" --wait --timeout 10m
-#
-
-
-

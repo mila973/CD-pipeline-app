@@ -16,4 +16,3 @@ config-cat:
   key: <change-me>
   flags:
     isFooEnabled: false
-
